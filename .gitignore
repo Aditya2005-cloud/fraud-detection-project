@@ -1,0 +1,19 @@
+venv/
+Lib/
+Scripts/
+Include/
+share/
+etc/
+pyvenv.cfg
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+*.ipynb
+data/
+dataset/
+*.csv
+node_modules/
+.env
+git rm --cached -r compressed
+git commit -m "Removed dataset"
+git push -u origin main --force

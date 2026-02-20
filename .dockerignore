@@ -1,0 +1,15 @@
+venv
+__pycache__
+*.pyc
+.ipynb_checkpoints
+*.ipynb
+data
+dataset
+*.csv
+notebooks
+frontend
+Lib
+Include
+Scripts
+share
+etc
