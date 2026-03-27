@@ -206,23 +206,43 @@ Example response:
 
 ## Docker
 
-Build:
+Docker source:
+
+- [Dockerfile](./Dockerfile)
+
+### Use with Docker
+
+Build the image locally from the project root:
 
 ```bash
 docker build -t fraud-detection-app .
 ```
 
-Run:
+Run the container:
 
 ```bash
 docker run --rm -p 5000:5000 fraud-detection-app
 ```
 
-Open:
+Open the app in your browser:
 
 ```text
 http://localhost:5000
 ```
+
+Useful Docker URLs:
+
+- App: `http://localhost:5000`
+- Health check: `http://localhost:5000/health`
+- API health alias: `http://localhost:5000/api`
+
+What Docker does here:
+
+- builds the frontend during image build
+- serves the React frontend from Flask
+- exposes the backend API on port `5000`
+
+If you later publish this image to Docker Hub, add the image link here and users will be able to run it with `docker pull <your-image>` followed by `docker run`.
 
 ## Testing
 
