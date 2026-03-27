@@ -261,3 +261,16 @@ npm run build
 - `data/cleaned_data.csv` is intentionally not committed
 - files in `model/` are generated after training
 - prediction requests return `503` if no trained model artifacts are available
+
+
+
+
+
+
+
+https://github.com/user-attachments/assets/4b3c844e-4d11-4b12-a061-05fbcc20a083
+
+
+
+
+
