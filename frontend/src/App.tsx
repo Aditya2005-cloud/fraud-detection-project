@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { predict } from './api'
+import { predict } from './api.ts'
 import type { PredictRequest, PredictResponse } from './types'
 import { sampleTransaction, getRandomFraudSample, getRandomLegitimateSample } from './sampleData'
 import './App.css'
