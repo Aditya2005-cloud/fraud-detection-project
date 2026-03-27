@@ -1,4 +1,3 @@
-venv/
 Lib/
 Scripts/
 Include/
@@ -12,8 +11,11 @@ __pycache__/
 data/
 dataset/
 *.csv
+compressed/
+model/*
+!model/.gitkeep
 node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/*.tsbuildinfo
 .env
-git rm --cached -r compressed
-git commit -m "Removed dataset"
-git push -u origin main --force

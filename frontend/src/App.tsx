@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { predict } from './api'
 import type { PredictRequest, PredictResponse } from './types'
-import { sampleTransaction, getRandomLegitimateSample, getRandomFraudSample } from './sampleData'
+import { sampleTransaction, getRandomFraudSample, getRandomLegitimateSample } from './sampleData'
 import './App.css'
 
 const FEATURE_ORDER = [
@@ -18,7 +18,7 @@ function App() {
   const [showAdvanced, setShowAdvanced] = useState(false)
 
   const update = (key: keyof PredictRequest, value: number) => {
-    setForm((f) => ({ ...f, [key]: value }))
+    setForm((current) => ({ ...current, [key]: value }))
     setError(null)
   }
 
@@ -33,9 +33,10 @@ function App() {
     setLoading(true)
     setError(null)
     setResult(null)
+
     try {
-      const res = await predict(form)
-      setResult(res)
+      const response = await predict(form)
+      setResult(response)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Request failed')
     } finally {
@@ -47,7 +48,7 @@ function App() {
     <div className="app">
       <header className="header">
         <h1>Fraud Detection</h1>
-        <p>Transaction risk score (0–100) from ensemble model</p>
+        <p>Transaction risk score (0-100) from ensemble model</p>
       </header>
 
       <main className="main">
@@ -84,13 +85,13 @@ function App() {
               </label>
             </div>
 
-            <button type="button" className="link" onClick={() => setShowAdvanced((s) => !s)}>
-              {showAdvanced ? 'Hide' : 'Show'} V1–V28 (PCA features)
+            <button type="button" className="link" onClick={() => setShowAdvanced((current) => !current)}>
+              {showAdvanced ? 'Hide' : 'Show'} V1-V28 (PCA features)
             </button>
 
             {showAdvanced && (
               <div className="v-grid">
-                {FEATURE_ORDER.filter((k) => k !== 'Time' && k !== 'Amount').map((key) => (
+                {FEATURE_ORDER.filter((key) => key !== 'Time' && key !== 'Amount').map((key) => (
                   <label key={key} className="v-label">
                     <span>{key}</span>
                     <input
@@ -105,7 +106,7 @@ function App() {
             )}
 
             <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Checking…' : 'Check risk'}
+              {loading ? 'Checking...' : 'Check risk'}
             </button>
           </form>
 
@@ -131,7 +132,7 @@ function App() {
       </main>
 
       <footer className="footer">
-        <p>API: POST /predict with Time, V1–V28, Amount. Backend must be running on port 5000.</p>
+        <p>API: POST /api/predict with Time, V1-V28, Amount. Local and Docker builds serve the same backend.</p>
       </footer>
     </div>
   )

@@ -1,61 +1,140 @@
 # Fraud Detection Project
 
-API and training pipeline for fraud detection with **risk score (0–100)**, **dynamic threshold**, and **weighted ensemble** (supervised + Isolation Forest).
+Fraud Detection Project is a full-stack machine learning application for credit card fraud prediction. It includes a Flask API, a React frontend, a training pipeline, and Docker support. The model returns a fraud probability, a risk score from `0` to `100`, and a final decision of `Legitimate`, `Suspicious`, or `Fraud`.
+
+## Short Description
+
+This project helps detect suspicious credit card transactions by combining:
+
+- supervised models
+- an unsupervised anomaly detector
+- feature engineering
+- a weighted ensemble with a dynamic threshold
 
 ## Features
 
-- **Risk score 0–100** instead of only 0/1 prediction  
-- **Dynamic threshold** tuned for F2 (favors recall on fraud)  
-- **Weighted ensemble**: RandomForest, XGBoost, LightGBM, CatBoost (supervised) + Isolation Forest (unsupervised)  
-- **Feature engineering**: amount buckets, time-based (hour, sin/cos), transaction velocity  
-- **Cost-sensitive learning**: `class_weight="balanced"`, `scale_pos_weight`; optional SMOTE  
-- **Cross-validation** and **hyperparameter tuning** (RandomizedSearchCV; GridSearchCV optional)  
+- Risk score from `0` to `100`
+- Fraud probability output
+- Weighted ensemble of `RandomForest`, `XGBoost`, `LightGBM`, optional `CatBoost`, and `IsolationForest`
+- Dynamic thresholding for fraud decisions
+- React frontend for interactive testing
+- Flask API for programmatic use
+- Dockerized deployment
+- GitHub Actions CI workflow
+
+## Project Structure
+
+```text
+.
++-- app.py
++-- train_pipeline.py
++-- prepare_dataset.py
++-- requirements.txt
++-- Dockerfile
++-- src/
+|   +-- features.py
++-- frontend/
++-- data/
+|   +-- cleaned_data.csv
++-- model/
++-- tests/
++-- .github/workflows/ci.yml
+```
+
+## Dataset
+
+The training pipeline expects:
+
+```text
+data/cleaned_data.csv
+```
+
+The dataset must contain at least:
+
+- `Time`
+- `V1` to `V28`
+- `Amount`
+- `Class`
+- `source`
+
+The training code uses rows where:
+
+```text
+source == "creditcard"
+```
+
+### How to get the dataset
+
+Use a credit card fraud CSV with the standard columns:
+
+- `Time`
+- `V1` to `V28`
+- `Amount`
+- `Class`
+
+Then run:
+
+```bash
+python prepare_dataset.py path/to/creditcard.csv
+```
+
+This creates:
+
+```text
+data/cleaned_data.csv
+```
+
+If you already have a compatible `cleaned_data.csv`, place it directly inside the `data/` folder.
 
 ## Setup
+
+Install backend dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Optional: install CatBoost for the full ensemble (`pip install catboost`).
+If Windows uses the wrong interpreter, run:
 
-## Training (new pipeline)
+```powershell
+.\Scripts\python.exe -m pip install -r requirements.txt
+```
 
-From the project root:
+Install frontend dependencies:
+
+```bash
+cd frontend
+npm install
+```
+
+## Training
+
+Train the ensemble model with:
 
 ```bash
 python train_pipeline.py
 ```
 
-This will:
-
-1. Load credit-card data from `data/cleaned_data.csv`  
-2. Engineer features (amount buckets, time, velocity)  
-3. Run 5-fold CV and RandomizedSearchCV on RandomForest  
-4. Train RF, XGBoost, LightGBM, CatBoost, Isolation Forest  
-5. Tune the decision threshold (F2) on the ensemble score  
-6. Save artifacts to `model/` (including `ensemble_artifacts.pkl`)
-
-Optional SMOTE (oversample fraud class):
+Optional SMOTE:
 
 ```bash
 set USE_SMOTE=1
 python train_pipeline.py
 ```
 
-## React frontend
+Optional CatBoost support:
 
 ```bash
-cd frontend
-npm install
-npm run dev
+pip install catboost
 ```
 
-Open http://localhost:5173. The app proxies API requests to the backend (port 5000). Use "Load legitimate sample" or "Load fraud sample", then "Check risk" to see risk score (0–100) and decision.
+Training saves artifacts to:
 
-Build for production: `npm run build` (output in `frontend/dist`).
+```text
+model/
+```
 
-## API
+## Run Locally
 
 Start the backend:
 
@@ -63,26 +142,114 @@ Start the backend:
 python app.py
 ```
 
-- **GET /** – health check  
-- **POST /predict** – JSON body with keys: `Time`, `V1`–`V28`, `Amount`  
+If Windows resolves to global Python, use:
 
-Response includes:
+```powershell
+.\run.ps1
+```
 
-- `risk_score` (0–100)  
-- `fraud_probability`  
-- `threshold_used` (dynamic)  
-- `prediction` (0/1)  
-- `final_decision`: "Fraud" | "Suspicious" | "Legitimate"  
-- `model`: `"weighted_ensemble"` or `"legacy"`  
+or:
 
-If `model/ensemble_artifacts.pkl` is missing, the app falls back to `fraud_model.pkl` and optional `isolation_forest.pkl` (legacy).
+```bat
+run.bat
+```
 
-## Project layout
+Open:
 
-- `app.py` – Flask API (ensemble or legacy)  
-- `frontend/` – React (Vite + TypeScript) UI for predictions  
-- `train_pipeline.py` – full training with CV, tuning, ensemble, threshold  
-- `src/features.py` – feature engineering (shared by train and app)  
-- `data/cleaned_data.csv` – cleaned data (credit card + other sources)  
-- `model/` – saved models and `ensemble_artifacts.pkl`  
-- `notebooks/model_training.ipynb` – original exploratory training  
+- `http://localhost:5000`
+- `http://localhost:5000/health`
+
+For frontend development:
+
+```bash
+cd frontend
+npm run dev
+```
+
+Open:
+
+```text
+http://localhost:5173
+```
+
+## API
+
+Health endpoints:
+
+- `GET /health`
+- `GET /api`
+- `GET /api/health`
+
+Prediction endpoints:
+
+- `POST /predict`
+- `POST /api/predict`
+
+Required JSON body fields:
+
+- `Time`
+- `V1` to `V28`
+- `Amount`
+
+Example response:
+
+```json
+{
+  "risk_score": 17,
+  "fraud_probability": 0.17,
+  "threshold_used": 0.57,
+  "prediction": 0,
+  "final_decision": "Legitimate",
+  "model": "weighted_ensemble"
+}
+```
+
+## Docker
+
+Build:
+
+```bash
+docker build -t fraud-detection-app .
+```
+
+Run:
+
+```bash
+docker run --rm -p 5000:5000 fraud-detection-app
+```
+
+Open:
+
+```text
+http://localhost:5000
+```
+
+## Testing
+
+Backend tests:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+Frontend build:
+
+```bash
+cd frontend
+npm run build
+```
+
+## GitHub
+
+This repository includes a GitHub Actions workflow at `.github/workflows/ci.yml` to:
+
+- install Python dependencies
+- run backend smoke tests
+- install frontend dependencies
+- build the frontend
+
+## Notes
+
+- `data/cleaned_data.csv` is intentionally not committed because it is large
+- trained files in `model/` are generated locally after training
+- if model artifacts are missing, prediction requests will fail until training is completed
