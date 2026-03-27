@@ -1,26 +1,37 @@
 # Fraud Detection Project
 
-Fraud Detection Project is a full-stack machine learning application for credit card fraud prediction. It includes a Flask API, a React frontend, a training pipeline, and Docker support. The model returns a fraud probability, a risk score from `0` to `100`, and a final decision of `Legitimate`, `Suspicious`, or `Fraud`.
+Fraud Detection Project is a full-stack machine learning application for credit card fraud prediction. It combines a Flask API, a React dashboard, and an ensemble-based training pipeline to score transactions as `Legitimate`, `Suspicious`, or `Fraud`.
 
-## Short Description
+## Project Description
 
-This project helps detect suspicious credit card transactions by combining:
+Suggested GitHub repository description:
 
-- supervised models
-- an unsupervised anomaly detector
-- feature engineering
-- a weighted ensemble with a dynamic threshold
+```text
+Full-stack credit card fraud detection app with Flask, React, ensemble ML models, Docker support, and GitHub Actions CI.
+```
 
-## Features
+Suggested Docker Hub short description:
 
+```text
+Full-stack fraud detection app with a Flask API, React frontend, and ensemble machine learning pipeline.
+```
+
+Suggested GitHub topics:
+
+```text
+fraud-detection machine-learning flask react docker xgboost lightgbm scikit-learn api fintech
+```
+
+## Key Features
+
+- Fraud probability output and human-readable fraud decision
 - Risk score from `0` to `100`
-- Fraud probability output
 - Weighted ensemble of `RandomForest`, `XGBoost`, `LightGBM`, optional `CatBoost`, and `IsolationForest`
-- Dynamic thresholding for fraud decisions
+- Feature engineering and dynamic thresholding
+- Flask API for integration and automation
 - React frontend for interactive testing
-- Flask API for programmatic use
-- Dockerized deployment
-- GitHub Actions CI workflow
+- Docker image and Compose support
+- GitHub Actions workflows for CI and container publishing
 
 ## Project Structure
 
@@ -31,6 +42,7 @@ This project helps detect suspicious credit card transactions by combining:
 +-- prepare_dataset.py
 +-- requirements.txt
 +-- Dockerfile
++-- compose.yaml
 +-- src/
 |   +-- features.py
 +-- frontend/
@@ -39,17 +51,14 @@ This project helps detect suspicious credit card transactions by combining:
 +-- model/
 +-- tests/
 +-- .github/workflows/ci.yml
++-- .github/workflows/docker-publish.yml
 ```
 
 ## Dataset
 
-The training pipeline expects:
+The training pipeline expects `data/cleaned_data.csv`.
 
-```text
-data/cleaned_data.csv
-```
-
-The dataset must contain at least:
+Required columns:
 
 - `Time`
 - `V1` to `V28`
@@ -57,36 +66,17 @@ The dataset must contain at least:
 - `Class`
 - `source`
 
-The training code uses rows where:
+Training uses records where `source == "creditcard"`.
 
-```text
-source == "creditcard"
-```
-
-### How to get the dataset
-
-Use a credit card fraud CSV with the standard columns:
-
-- `Time`
-- `V1` to `V28`
-- `Amount`
-- `Class`
-
-Then run:
+To prepare a compatible dataset from a standard fraud CSV:
 
 ```bash
 python prepare_dataset.py path/to/creditcard.csv
 ```
 
-This creates:
+If you already have a compatible file, place it directly at `data/cleaned_data.csv`.
 
-```text
-data/cleaned_data.csv
-```
-
-If you already have a compatible `cleaned_data.csv`, place it directly inside the `data/` folder.
-
-## Setup
+## Local Setup
 
 Install backend dependencies:
 
@@ -94,7 +84,7 @@ Install backend dependencies:
 pip install -r requirements.txt
 ```
 
-If Windows uses the wrong interpreter, run:
+Windows fallback:
 
 ```powershell
 .\Scripts\python.exe -m pip install -r requirements.txt
@@ -104,21 +94,21 @@ Install frontend dependencies:
 
 ```bash
 cd frontend
-npm install
+npm ci
 ```
 
 ## Training
 
-Train the ensemble model with:
+Train the ensemble pipeline:
 
 ```bash
 python train_pipeline.py
 ```
 
-Optional SMOTE:
+Enable SMOTE on Windows:
 
-```bash
-set USE_SMOTE=1
+```powershell
+$env:USE_SMOTE=1
 python train_pipeline.py
 ```
 
@@ -128,27 +118,21 @@ Optional CatBoost support:
 pip install catboost
 ```
 
-Training saves artifacts to:
-
-```text
-model/
-```
+Artifacts are saved to `model/`.
 
 ## Run Locally
 
-Start the backend:
+Start the Flask app:
 
 ```bash
 python app.py
 ```
 
-If Windows resolves to global Python, use:
+Windows helpers:
 
 ```powershell
 .\run.ps1
 ```
-
-or:
 
 ```bat
 run.bat
@@ -166,11 +150,7 @@ cd frontend
 npm run dev
 ```
 
-Open:
-
-```text
-http://localhost:5173
-```
+Then open `http://localhost:5173`.
 
 ## API
 
@@ -185,7 +165,7 @@ Prediction endpoints:
 - `POST /predict`
 - `POST /api/predict`
 
-Required JSON body fields:
+Required JSON fields:
 
 - `Time`
 - `V1` to `V28`
@@ -206,13 +186,7 @@ Example response:
 
 ## Docker
 
-Docker source:
-
-- [Dockerfile](./Dockerfile)
-
-### Use with Docker
-
-Build the image locally from the project root:
+Build the image locally:
 
 ```bash
 docker build -t fraud-detection-app .
@@ -224,25 +198,48 @@ Run the container:
 docker run --rm -p 5000:5000 fraud-detection-app
 ```
 
-Open the app in your browser:
+Or use Docker Compose:
 
-```text
-http://localhost:5000
+```bash
+docker compose up --build
 ```
 
-Useful Docker URLs:
+App URLs:
 
-- App: `http://localhost:5000`
-- Health check: `http://localhost:5000/health`
-- API health alias: `http://localhost:5000/api`
+- `http://localhost:5000`
+- `http://localhost:5000/health`
+- `http://localhost:5000/api`
 
-What Docker does here:
+The image build:
 
-- builds the frontend during image build
-- serves the React frontend from Flask
-- exposes the backend API on port `5000`
+- installs Python dependencies
+- builds the React frontend
+- serves the built frontend through Flask
+- exposes port `5000`
 
-If you later publish this image to Docker Hub, add the image link here and users will be able to run it with `docker pull <your-image>` followed by `docker run`.
+## Docker Hub Publishing
+
+This repository now includes [`.github/workflows/docker-publish.yml`](./.github/workflows/docker-publish.yml) for publishing an image to Docker Hub from GitHub Actions.
+
+Before it can push images, add these repository secrets in GitHub:
+
+- `DOCKERHUB_USERNAME`
+- `DOCKERHUB_TOKEN`
+
+Then update the `IMAGE_NAME` value in the workflow to match your Docker Hub repository, for example:
+
+```text
+your-dockerhub-username/fraud-detection-project
+```
+
+After that, pushes to `main` and version tags such as `v1.0.0` can publish ready-to-run images.
+
+## GitHub Actions
+
+The repository includes:
+
+- [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) for backend smoke tests and frontend build validation
+- [`.github/workflows/docker-publish.yml`](./.github/workflows/docker-publish.yml) for container image publishing
 
 ## Testing
 
@@ -252,24 +249,15 @@ Backend tests:
 python -m unittest discover -s tests -v
 ```
 
-Frontend build:
+Frontend production build:
 
 ```bash
 cd frontend
 npm run build
 ```
 
-## GitHub
-
-This repository includes a GitHub Actions workflow at `.github/workflows/ci.yml` to:
-
-- install Python dependencies
-- run backend smoke tests
-- install frontend dependencies
-- build the frontend
-
 ## Notes
 
-- `data/cleaned_data.csv` is intentionally not committed because it is large
-- trained files in `model/` are generated locally after training
-- if model artifacts are missing, prediction requests will fail until training is completed
+- `data/cleaned_data.csv` is intentionally not committed
+- files in `model/` are generated after training
+- prediction requests return `503` if no trained model artifacts are available

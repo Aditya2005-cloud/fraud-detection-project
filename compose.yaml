@@ -1,0 +1,9 @@
+services:
+  fraud-detection-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: fraud-detection-app:latest
+    ports:
+      - "5000:5000"
+    restart: unless-stopped

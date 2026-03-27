@@ -13,6 +13,16 @@ FROM python:3.11-slim-bookworm AS runtime
 
 WORKDIR /app
 
+ARG VCS_REF=local
+ARG BUILD_DATE=unknown
+
+LABEL org.opencontainers.image.title="Fraud Detection Project" \
+      org.opencontainers.image.description="Full-stack credit card fraud detection app with Flask, React, and ensemble machine learning models." \
+      org.opencontainers.image.source="https://github.com/your-username/fraud-detection-project2" \
+      org.opencontainers.image.revision="${VCS_REF}" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.licenses="MIT"
+
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     OMP_NUM_THREADS=1 \
@@ -36,6 +46,7 @@ COPY --from=frontend-builder /frontend/dist ./frontend/dist
 
 EXPOSE 5000
 
+# The health check keeps container platforms and Compose aware of app readiness.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD python -c "from urllib.request import urlopen; urlopen('http://127.0.0.1:5000/health').read()"
 
