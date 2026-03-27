@@ -9,8 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  # Replace this with your real Docker Hub repository before enabling public pushes.
-  IMAGE_NAME: your-dockerhub-username/fraud-detection-project
+  IMAGE_NAME: n8nproject2026/fraud-detection-project
 
 jobs:
   publish:

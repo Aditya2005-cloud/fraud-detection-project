@@ -18,7 +18,7 @@ ARG BUILD_DATE=unknown
 
 LABEL org.opencontainers.image.title="Fraud Detection Project" \
       org.opencontainers.image.description="Full-stack credit card fraud detection app with Flask, React, and ensemble machine learning models." \
-      org.opencontainers.image.source="https://github.com/your-username/fraud-detection-project2" \
+      org.opencontainers.image.source="https://github.com/Aditya2005-cloud/fraud-detection-project" \
       org.opencontainers.image.revision="${VCS_REF}" \
       org.opencontainers.image.created="${BUILD_DATE}" \
       org.opencontainers.image.licenses="MIT"

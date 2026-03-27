@@ -221,18 +221,24 @@ The image build:
 
 This repository now includes [`.github/workflows/docker-publish.yml`](./.github/workflows/docker-publish.yml) for publishing an image to Docker Hub from GitHub Actions.
 
+Public image:
+
+```text
+n8nproject2026/fraud-detection-project:latest
+```
+
+Docker Hub:
+
+```text
+https://hub.docker.com/r/n8nproject2026/fraud-detection-project
+```
+
 Before it can push images, add these repository secrets in GitHub:
 
 - `DOCKERHUB_USERNAME`
 - `DOCKERHUB_TOKEN`
 
-Then update the `IMAGE_NAME` value in the workflow to match your Docker Hub repository, for example:
-
-```text
-your-dockerhub-username/fraud-detection-project
-```
-
-After that, pushes to `main` and version tags such as `v1.0.0` can publish ready-to-run images.
+The workflow is already configured to publish `n8nproject2026/fraud-detection-project`. After the secrets are added, pushes to `main` and version tags such as `v1.0.0` can publish ready-to-run images automatically.
 
 ## GitHub Actions
 
